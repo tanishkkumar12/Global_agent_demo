@@ -3,12 +3,14 @@ import { RestaurantConfig } from "./types";
 
 export class AIService {
   private systemInstruction: string;
+  private restaurantId?: string;
 
-  constructor(config: RestaurantConfig) {
+  constructor(config: RestaurantConfig, restaurantId?: string) {
     this.systemInstruction = generateSystemPrompt(config);
+    this.restaurantId = restaurantId;
   }
 
-  async sendMessageStream(message: string, history: { role: string; text: string }[], onChunk: (chunk: string) => void, signal?: AbortSignal) {
+  async sendMessageStream(message: string, history: { role: string; text: string }[], onChunk: (chunk: string) => void, signal?: AbortSignal, language?: string) {
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -23,6 +25,8 @@ export class AIService {
             content: h.text 
           })),
           systemInstruction: this.systemInstruction,
+          restaurantId: this.restaurantId,
+          language,
         }),
       });
 
